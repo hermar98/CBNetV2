@@ -1,7 +1,7 @@
 _base_ = [
-    '../../_base_/models/cascade_rcnn_swin_fpn.py',
-    '../../_base_/datasets/coco_detection.py',
-    '../../_base_/schedules/schedule_1x.py', '../../_base_/default_runtime.py'
+    '../_base_/models/cascade_rcnn_swin_fpn.py',
+    '../_base_/datasets/coco_detection.py',
+    '../_base_/schedules/schedule_1x.py', '../_base_/default_runtime.py'
 ]
 
 # Model settings
@@ -97,7 +97,7 @@ test_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(
         type='MultiScaleFlipAug',
-        img_scale=(1024, 128),
+        img_scale=(2048, 256),
         flip=False,
         transforms=[
             dict(type='Resize', keep_ratio=True),
@@ -148,8 +148,8 @@ data = dict(
     test=dict(
         type=dataset_type,
         classes=classes,
-        ann_file='data/naplab/dataset_test/labels.json',
-        img_prefix='data/naplab/dataset_test/data',
+        ann_file='data/naplab/dataset_val/labels.json',
+        img_prefix='data/naplab/dataset_val/data',
         pipeline=test_pipeline))
 
 load_from = "./checkpoints/cascade_mask_rcnn_cbv2_swin_tiny_patch4_window7_mstrain_480-800_adamw_3x_coco.pth"

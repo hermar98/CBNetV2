@@ -28,7 +28,7 @@ model = dict(
                 conv_out_channels=256,
                 fc_out_channels=1024,
                 roi_feat_size=7,
-                num_classes=10,
+                num_classes=8,
                 bbox_coder=dict(
                     type='DeltaXYWHBBoxCoder',
                     target_means=[0., 0., 0., 0.],
@@ -47,7 +47,7 @@ model = dict(
                 conv_out_channels=256,
                 fc_out_channels=1024,
                 roi_feat_size=7,
-                num_classes=10,
+                num_classes=8,
                 bbox_coder=dict(
                     type='DeltaXYWHBBoxCoder',
                     target_means=[0., 0., 0., 0.],
@@ -66,7 +66,7 @@ model = dict(
                 conv_out_channels=256,
                 fc_out_channels=1024,
                 roi_feat_size=7,
-                num_classes=10,
+                num_classes=8,
                 bbox_coder=dict(
                     type='DeltaXYWHBBoxCoder',
                     target_means=[0., 0., 0., 0.],
@@ -85,8 +85,9 @@ img_norm_cfg = dict(
 train_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='LoadAnnotations', with_bbox=True),
-    dict(type='Resize', img_scale=(1280, 720), keep_ratio=True),
+    dict(type='Resize', img_scale=(2048, 256), keep_ratio=True),
     dict(type='RandomFlip', flip_ratio=0.5),
+    dict(type='RandomCrop', crop_size=(0.5, 0.2), crop_type="relative_range"),
     dict(type='Normalize', **img_norm_cfg),
     dict(type='Pad', size_divisor=32),
     dict(type='DefaultFormatBundle'),
@@ -96,7 +97,7 @@ test_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(
         type='MultiScaleFlipAug',
-        img_scale=(1280, 720),
+        img_scale=(2048, 256),
         flip=False,
         transforms=[
             dict(type='Resize', keep_ratio=True),
@@ -113,7 +114,7 @@ optimizer = dict(_delete_=True, type='AdamW', lr=0.0001, betas=(0.9, 0.999), wei
                                                  'relative_position_bias_table': dict(decay_mult=0.),
                                                  'norm': dict(decay_mult=0.)}))
 lr_config = dict(step=[8, 11])
-runner = dict(type='EpochBasedRunnerAmp', max_epochs=12)
+runner = dict(type='EpochBasedRunnerAmp', max_epochs=5)
 
 # do not use mmdet version fp16
 fp16 = None
@@ -128,27 +129,27 @@ optimizer_config = dict(
 
 # Dataset settings
 dataset_type = 'CocoDataset'
-classes = ('pedestrian', 'rider', 'car', 'truck', 'bus', 'train', 'motorcycle', 'bicycle', 'traffic light', 'traffic sign')
+classes = ('car', 'truck', 'bus', 'motorcycle', 'bicycle', 'scooter', 'person', 'rider')
 data = dict(
-    samples_per_gpu=4,
+    samples_per_gpu=2,
     workers_per_gpu=2,
     train=dict(
         type=dataset_type,
         classes=classes,
-        ann_file='data/bdd100k/labels/det_20/det_train_coco.json',
-        img_prefix='data/bdd100k/images/100k/train',
+        ann_file='data/naplab/dataset_train/labels.json',
+        img_prefix='data/naplab/dataset_train/data',
         pipeline=train_pipeline),
     val=dict(
         type=dataset_type,
         classes=classes,
-        ann_file='data/bdd100k/labels/det_20/det_val_coco.json',
-        img_prefix='data/bdd100k/images/100k/val',
+        ann_file='data/naplab/dataset_val/labels.json',
+        img_prefix='data/naplab/dataset_val/data',
         pipeline=test_pipeline),
     test=dict(
         type=dataset_type,
         classes=classes,
-        ann_file='data/bdd100k/labels/det_20/det_val_coco.json',
-        img_prefix='data/bdd100k/images/100k/val',
+        ann_file='data/naplab/dataset_val/labels.json',
+        img_prefix='data/naplab/dataset_val/data',
         pipeline=test_pipeline))
 
 load_from = "./checkpoints/cascade_mask_rcnn_cbv2_swin_tiny_patch4_window7_mstrain_480-800_adamw_3x_coco.pth"
